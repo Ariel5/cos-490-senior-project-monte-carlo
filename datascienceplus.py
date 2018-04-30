@@ -13,7 +13,10 @@ from scipy.stats import norm
 # Refer to save_to_csv argument help description
 def save_as_csv(data, filename, prefix):
     csv_file = open(prefix + filename + '.csv', 'w')
-    data.to_csv(csv_file)
+    if type(data) != numpy.ndarray:
+        data.to_csv(csv_file)
+    else:
+        numpy.savetxt(prefix + filename + '.csv', data, delimiter=',')
 
 
 # Returns 2D data structure with labeled axes in the format: Date/Closing Price
@@ -104,7 +107,7 @@ def prediction_accuracy(ticker, comparison_start_date, comparison_end_date, pred
     mean_comparison = [prediction_data.mean(), comparison_data.mean()]
     standard_deviation_comparison = [prediction_data.std(), comparison_data.std()]
 
-    return prediction_data, mean_comparison, standard_deviation_comparison
+    return comparison_data, mean_comparison, standard_deviation_comparison
 
 
 # Calculates difference in percentage between two numbers. This is different from Percentage Change,
@@ -153,7 +156,7 @@ if __name__ == '__main__':
                              "frequently as it is possible that the Finance API will deny you "
                              "access. The system enforces a Fair-Use policy. It might be a good "
                              "idea to download the data once, and use the \"save_to_csv\" "
-                             "option to save it locally."
+                             "option to save it locally. Please enter -o True to activate. "
                              "Default: KO (Coca-Cola) from CSV for testing and performance "
                              "purposes")
     parser.add_argument('-t' '--ticker', default='KO',
@@ -251,7 +254,7 @@ if __name__ == '__main__':
     #   True or False - it is string or False. See args['save_to_csv']
     if save_to_csv != False:
         # If Not False, save_to_csv will store the filename
-        save_to_csv(past_data, save_to_csv, 'past-')
-        save_to_csv(price_prediction, save_to_csv, 'prediction-')
+        save_as_csv(past_data, save_to_csv, 'past-')
+        save_as_csv(price_prediction, save_to_csv, 'prediction-')
         if is_prediction_accuracy_possible:
-            save_to_csv(comparison_data, save_to_csv, 'real-')
+            save_as_csv(comparison_data, save_to_csv, 'real-')
