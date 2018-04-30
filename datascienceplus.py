@@ -20,9 +20,10 @@ def save_as_csv(data, filename, prefix):
 
 
 # Returns 2D data structure with labeled axes in the format: Date/Closing Price
+# noinspection PyShadowingNames,PyShadowingNames,PyShadowingNames,PyShadowingNames,PyShadowingNames
 def data_source(ticker, start_date, end_date, online_source, load_csv='past-stock.csv'):
     # Choose whether to get data from online source or CSV file
-    if (online_source):
+    if online_source:
         # Dictionary[] because DataFrame (pandas object) can hold many different stocks,
         #   which are shown in different columns on DataReader
         data = pandas_datareader.DataReader(ticker, data_source='quandl',
@@ -35,6 +36,7 @@ def data_source(ticker, start_date, end_date, online_source, load_csv='past-stoc
 
 
 # Makes Brownian Motion predictions based on past data. Refer to each line's comment for more details
+# noinspection PyShadowingNames,PyShadowingNames
 def statistical_wizardry(data, days_to_predict, nr_predictions):
     # What is logarithmic return? Return on investment. Logarithmic method used to avoid quirks of arithmetic method.
     # This because in arithmetic, a stock increase of 15% then a decrease of 15% would have a net change of -2.25%
@@ -45,7 +47,7 @@ def statistical_wizardry(data, days_to_predict, nr_predictions):
 
     # stochastic_drift = log_returns.mean() - (0.5 * log_returns.var())
     # For some reason needs to be converted to numpy.array. Is: Series
-    # Best apporximation for future log return
+    # Best approximation for future log return
     stochastic_drift = log_returns.mean() - (0.5 * log_returns.var())
 
     # The higher the s_d the harder the prediction
@@ -74,7 +76,7 @@ def statistical_wizardry(data, days_to_predict, nr_predictions):
 
     # Returns last-day's stock price from the data given
     # iloc means item at location, 0 means first
-    # @Important Dependent on Stock Price API. For example, Yahoo! Finance sorts oldest to newest / Quandl is the opposite
+    # Dependent on Stock Price API. For example, Yahoo! Finance sorts oldest to newest / Quandl is the opposite
     latest_price_from_data = data.iloc[0]
 
     # Returns an array with same dimensions as the argument
@@ -101,9 +103,11 @@ def statistical_wizardry(data, days_to_predict, nr_predictions):
 #   future, as then there obviously is no real-world data to compare accuracy against.
 # Prediction starts from last day of past-data given as arguments to the statistics prediction function hence
 #   comparison_start_date is parameter and end_date is actual argument.
+# noinspection PyShadowingNames,PyShadowingNames,PyShadowingNames
 def prediction_accuracy(ticker, comparison_start_date, comparison_end_date, prediction_data):
     comparison_data = data_source(ticker, comparison_start_date, comparison_end_date, True)
 
+    # Numpy mean() flattens 2D array over columns, then takes the average of these
     mean_comparison = [prediction_data.mean(), comparison_data.mean()]
     standard_deviation_comparison = [prediction_data.std(), comparison_data.std()]
 
@@ -114,7 +118,7 @@ def prediction_accuracy(ticker, comparison_start_date, comparison_end_date, pred
 #   as the order of numbers in Percentage Difference does not matter
 def percentage_difference(num1, num2):
     # Round absolute number to 2 decimal places
-    return round((abs(num1 - num2)/((num1 + num2)/2))*100, 2)
+    return round((abs(num1 - num2) / ((num1 + num2) / 2)) * 100, 2)
 
 
 # Function that uses matplotlib to visualize data in a chart
@@ -135,8 +139,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Welcome to Brownian Motion, Monte-Carlo simulation of future stock "
                                                  "price. "
                                                  "This program reads past stock price data and uses Brownian Motion "
-                                                 "and Monte Carlo style of simulations to predict a future stock price. "
-                                                 "!!!DISCLAIMER!!! "
+                                                 "and Monte Carlo style of simulations to predict a future stock "
+                                                 "price. !!!DISCLAIMER!!! "
                                                  "Please note that this prediction algorithm is not Wunderwaffe, "
                                                  "neither is it omniscient. The prediction is purely "
                                                  "statistics-based, and you should not base your investment decisions "
@@ -195,7 +199,7 @@ if __name__ == '__main__':
     args = vars(parser.parse_args())
 
     # Read command line args
-    online_source = False if (args['online_source'] == None) else True
+    online_source = False if (args['online_source'] is None) else True
     ticker = args['t__ticker']
     load_csv = args['l__load_csv']
 
@@ -207,7 +211,7 @@ if __name__ == '__main__':
 
     # Not used a default in add_argument because I want to use Coca-Cola for demonstration purposes.
     # I have already downloaded and saved the data in CSV in case of network error in presentation.
-    save_to_csv = False if (args['save_to_csv'] == None) else args['save_to_csv']
+    save_to_csv = False if (args['save_to_csv'] is None) else args['save_to_csv']
     days_to_predict = int(args['days_to_predict'])
     number_of_predictions = int(args['number_of_predictions'])
 
@@ -219,7 +223,6 @@ if __name__ == '__main__':
     price_prediction = statistical_wizardry(past_data, days_to_predict, number_of_predictions)
     # Display chart with prediction data
     plot_chart(price_prediction, ticker + " Price Prediction")
-
 
     # See if it's possible to get a prediction accuracy reading based on given parameters
     # See comment on prediction_accuracy()
@@ -238,20 +241,21 @@ if __name__ == '__main__':
         comparison_data = return_value[0]
         print("Prediction accuracy:\n")
         print("Mean:\t" + "Prediction: " + str(round(return_value[1][0], 2)) + r' / ' +
-              "Real: " + str(round(return_value[1][1], 2)) + r'  --  Difference: ' +
-              str(percentage_difference(return_value[1][0], return_value[1][1])) + ' %')
+              "Real: " + str(round(return_value[1][1], 2)) + r'  --  Accuracy: ' +
+              str(abs(round(100 - percentage_difference(return_value[1][0], return_value[1][1]), 2))) + ' %')
         print("Standard Deviation:\t" + "Prediction: " + str(round(return_value[2][0], 2)) + r' / ' +
-              "Real: " + str(round(return_value[2][1], 2)) + r'  --  Difference: ' +
-              str(percentage_difference(return_value[2][0], return_value[2][1])) + ' %')
+              "Real: " + str(round(return_value[2][1], 2)) + r'  --  Accuracy: ' +
+              str(abs(round(100 - percentage_difference(return_value[2][0], return_value[2][1]), 2))) + ' %')
 
         plot_chart(comparison_data, ticker + " Real Data")
     else:
-        print("Cannot compute prediction accuracy because you are requesting the program to compute future stock price." \
+        print("Cannot compute prediction accuracy because you are requesting the program to compute future stock price."
               "Real-world data is therefore not available to make this prediction.\nSkipping...")
 
     # Save data to CSV if user gives such parameter
     # Yes, I know this following if statement can be technically "simplified", but note that save_to_csv is not
     #   True or False - it is string or False. See args['save_to_csv']
+    # noinspection PySimplifyBooleanCheck
     if save_to_csv != False:
         # If Not False, save_to_csv will store the filename
         save_as_csv(past_data, save_to_csv, 'past-')
